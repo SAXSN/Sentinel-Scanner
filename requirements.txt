@@ -1,1 +1,7 @@
 
+python-nmap
+requests
+jinja2
+asyncio
+sqlite3
+click
