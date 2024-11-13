@@ -10,6 +10,7 @@ from sentinel_scanner.reporting import ReportGenerator
 def scan(targets, report_type):
     hosts = targets.split(',')
     
+    # Initialize Scanner, Vulnerability Checker, and Report Generator
     scanner = SentinelScanner()
     vulnerability_scanner = VulnerabilityScanner()
     report_generator = ReportGenerator()
@@ -18,22 +19,20 @@ def scan(targets, report_type):
     loop = asyncio.get_event_loop()
     scan_results = loop.run_until_complete(scanner.scan_hosts(hosts))
     
+    # Prepare the data for reporting
     data = []
     for host in scan_results:
-        for port in host['services']:  # Iterate over open ports (services)
-            service_info = scanner.scan_host(host['ip'])  # Get full service info for each port
-            if service_info:
-                # Check vulnerabilities for the service version
-                version = service_info.get('version', '')
-                vulnerability = vulnerability_scanner.check_cve(version)
-                data.append({
-                    'host': host['ip'],
-                    'port': port,
-                    'service': service_info['hostname'],  # or use service name if available
-                    'vulnerability': vulnerability
-                })
+        for service in host['services']:  # Each service contains details like port and service name
+            version = service.get('version', '')
+            vulnerability = vulnerability_scanner.check_cve(version)  # Check vulnerabilities if version info exists
+            data.append({
+                'host': host['host'],
+                'port': service['port'],
+                'service': service['service'],
+                'vulnerability': vulnerability
+            })
 
-    # Generate the report based on the report type
+    # Generate the report based on the selected report type
     if report_type == 'json':
         report_generator.generate_json(data)
     elif report_type == 'csv':
