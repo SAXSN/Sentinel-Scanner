@@ -48,3 +48,40 @@ Use the command-line interface to scan hosts and generate reports.
 
 ```bash
 python main.py --targets <host1,host2,...> --report_type <json|csv|html>
+```
+
+## Report Formats
+
+Sentinel Scanner supports three report formats:
+
+1. **JSON**: Provides a structured, machine-readable report.
+2. **CSV**: Suitable for spreadsheet software or importing into databases.
+3. **HTML**: Readable in a web browser with basic styling.
+
+Reports are saved in the `reports` directory by default.
+
+## Project Structure
+
+Project structure of Sentinel Scanner:
+
+- **`main.py`**: Main script to run the scanner and generate reports.
+- **`sentinel_scanner/scanner.py`**: Contains the `SentinelScanner` class for scanning hosts.
+- **`sentinel_scanner/vulnerability.py`**: Implements `VulnerabilityScanner`, which checks for known vulnerabilities.
+- **`sentinel_scanner/reporting.py`**: Implements `ReportGenerator` to create JSON, CSV, and HTML reports.
+
+## Contribution
+
+Contributions are welcome! Please fork the repository, make your changes, and submit a pull request.
+
+Steps to contribute:
+
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature-branch`).
+3. Commit your changes (`git commit -am 'Add new feature'`).
+4. Push to the branch (`git push origin feature-branch`).
+5. Create a new pull request.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
