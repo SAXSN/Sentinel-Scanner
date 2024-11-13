@@ -6,78 +6,32 @@ class SentinelScanner:
         self.nm = nmap.PortScanner()
 
     def scan_host(self, host: str):
-        """ Scan a single host and return simplified information """
         try:
-            self.nm.scan(host)
-            host_info = self.nm[host]
-            # Extract only the relevant data to make it hashable (IP, ports, service info)
-            host_data = {
-                'host': host,
-                'hostname': host_info.get('hostnames', []),
-                'ip': host_info.get('addresses', {}).get('ipv4', ''),
-                'services': list(host_info.get('all_protocols', []))  # list of protocols (ports)
-            }
-            return host_data
-        except Exception as e:
-            print(f"Error scanning {host}: {e}")
-            return None
-
-    async def scan_hosts(self, hosts):
-        """ Scan multiple hosts asynchronously using loop.run_in_executor """
-        loop = asyncio.get_event_loop()  # Get the event loop
-        tasks = []
-
-        # Run each host scan in a separate thread
-        for host in hosts:
-            task = loop.run_in_executor(None, self.scan_host, host)  # Non-blocking way to run scan_host
-            tasks.append(task)
-        
-        # Wait for all tasks to complete and return the results
-        results = await asyncio.gather(*tasks)  # Gather the scan results
-        return [result for result in results if result is not None]  # Filter out None results
-Your code generally looks good, but there are a few tweaks we can make to ensure it works smoothly:
-
-Initialize self.nm correctly within the SentinelScanner class.
-
-Ensure the scan_host function handles the host key correctly in host_info.
-
-Handle possible exceptions more effectively and provide detailed feedback.
-
-Here's an updated version with these improvements:
-
-python
-import nmap
-import asyncio
-
-class SentinelScanner:
-    def __init__(self):
-        self.nm = nmap.PortScanner()
-
-    def scan_host(self, host: str):
-        """ Scan a single host and return simplified information """
-        try:
-            self.nm.scan(host)
-            if host in self.nm.all_hosts():
-                host_info = self.nm[host]
-                host_data = {
-                    'host': host,
-                    'hostname': host_info.get('hostnames', []),
-                    'ip': host_info.get('addresses', {}).get('ipv4', ''),
-                    'services': list(host_info.get('all_protocols', []))  # list of protocols (ports)
-                }
-                return host_data
-            else:
-                print(f"Host {host} not found")
+            self.nm.scan(host, arguments='-sS -sV')
+            if host not in self.nm.all_hosts():
                 return None
+            
+            host_info = self.nm[host]
+            services = []
+            for proto in host_info.all_protocols():
+                for port in host_info[proto].keys():
+                    service_data = {
+                        'port': port,
+                        'service': host_info[proto][port]['name'],
+                        'version': host_info[proto][port].get('version', 'Unknown')
+                    }
+                    services.append(service_data)
+
+            return {'host': host, 'services': services}
+        
         except Exception as e:
             print(f"Error scanning {host}: {e}")
             return None
 
     async def scan_hosts(self, hosts):
-        """ Scan multiple hosts asynchronously using loop.run_in_executor """
-        loop = asyncio.get_event_loop()  # Get the event loop
-        tasks = [loop.run_in_executor(None, self.scan_host, host) for host in hosts]  # Non-blocking way to run scan_host
+        loop = asyncio.get_event_loop()
+        tasks = [loop.run_in_executor(None, self.scan_host, host) for host in hosts]
+        results = await asyncio.gather(*tasks)
         
-        # Wait for all tasks to complete and return the results
-        results = await asyncio.gather(*tasks)  # Gather the scan results
-        return [result for result in results if result is not None
+        # Filter out None results and return a list of host data
+        return [result for result in results if result is not None]
