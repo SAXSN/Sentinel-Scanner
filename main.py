@@ -20,18 +20,20 @@ def scan(targets, report_type):
     
     data = []
     for host in scan_results:
-        for port in host['services']:  # Iterate over services
-            service_info = scanner.scan_host(host['ip'])  # Get full service info for the port
+        for port in host['services']:  # Iterate over open ports (services)
+            service_info = scanner.scan_host(host['ip'])  # Get full service info for each port
             if service_info:
-                vulnerability = vulnerability_scanner.check_cve(service_info['version'])
+                # Check vulnerabilities for the service version
+                version = service_info.get('version', '')
+                vulnerability = vulnerability_scanner.check_cve(version)
                 data.append({
                     'host': host['ip'],
                     'port': port,
-                    'service': service_info['name'],
+                    'service': service_info['hostname'],  # or use service name if available
                     'vulnerability': vulnerability
                 })
 
-    # Generate the report
+    # Generate the report based on the report type
     if report_type == 'json':
         report_generator.generate_json(data)
     elif report_type == 'csv':
