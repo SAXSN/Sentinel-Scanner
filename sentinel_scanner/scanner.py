@@ -35,3 +35,49 @@ class SentinelScanner:
         # Wait for all tasks to complete and return the results
         results = await asyncio.gather(*tasks)  # Gather the scan results
         return [result for result in results if result is not None]  # Filter out None results
+Your code generally looks good, but there are a few tweaks we can make to ensure it works smoothly:
+
+Initialize self.nm correctly within the SentinelScanner class.
+
+Ensure the scan_host function handles the host key correctly in host_info.
+
+Handle possible exceptions more effectively and provide detailed feedback.
+
+Here's an updated version with these improvements:
+
+python
+import nmap
+import asyncio
+
+class SentinelScanner:
+    def __init__(self):
+        self.nm = nmap.PortScanner()
+
+    def scan_host(self, host: str):
+        """ Scan a single host and return simplified information """
+        try:
+            self.nm.scan(host)
+            if host in self.nm.all_hosts():
+                host_info = self.nm[host]
+                host_data = {
+                    'host': host,
+                    'hostname': host_info.get('hostnames', []),
+                    'ip': host_info.get('addresses', {}).get('ipv4', ''),
+                    'services': list(host_info.get('all_protocols', []))  # list of protocols (ports)
+                }
+                return host_data
+            else:
+                print(f"Host {host} not found")
+                return None
+        except Exception as e:
+            print(f"Error scanning {host}: {e}")
+            return None
+
+    async def scan_hosts(self, hosts):
+        """ Scan multiple hosts asynchronously using loop.run_in_executor """
+        loop = asyncio.get_event_loop()  # Get the event loop
+        tasks = [loop.run_in_executor(None, self.scan_host, host) for host in hosts]  # Non-blocking way to run scan_host
+        
+        # Wait for all tasks to complete and return the results
+        results = await asyncio.gather(*tasks)  # Gather the scan results
+        return [result for result in results if result is not None
