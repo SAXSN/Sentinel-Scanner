@@ -23,11 +23,13 @@ class SentinelScanner:
             return None
 
     async def scan_hosts(self, hosts):
-        """ Scan multiple hosts asynchronously """
+        """ Scan multiple hosts asynchronously using loop.run_in_executor """
+        loop = asyncio.get_event_loop()  # Get the event loop
         tasks = []
+
+        # Run each host scan in a separate thread
         for host in hosts:
-            # For each host, we add an asynchronous task that will perform the scan
-            task = asyncio.create_task(self.scan_host(host))
+            task = loop.run_in_executor(None, self.scan_host, host)  # Non-blocking way to run scan_host
             tasks.append(task)
         
         # Wait for all tasks to complete and return the results
