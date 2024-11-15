@@ -25,7 +25,7 @@ class ReportGenerator:
                 writer = csv.writer(f)
                 writer.writerow(["Host", "Port", "Service", "Vulnerability"])
                 for entry in data:
-                    writer.writerow([entry['host'], entry['port'], entry['service'], entry['vulnerability']])
+                    writer.writerow([entry['host'], entry['port'], entry['service'], entry['version'], entry['vulnerability']])
             print(f"CSV report saved as {path}")
         except Exception as e:
             print(f"Error generating CSV report: {e}")
@@ -44,9 +44,9 @@ class ReportGenerator:
             </head><body>
             <h1>Sentinel Scanner Report</h1>
             <table>
-            <tr><th>Host</th><th>Port</th><th>Service</th><th>Vulnerability</th></tr>
+            <tr><th>Host</th><th>Port</th><th>Service</th><th>Version</th><th>Vulnerability</th></tr>
             {% for entry in data %}
-            <tr><td>{{ entry.host }}</td><td>{{ entry.port }}</td><td>{{ entry.service }}</td><td>{{ entry.vulnerability }}</td></tr>
+            <tr><td>{{ entry.host }}</td><td>{{ entry.port }}</td><td>{{ entry.service }}</td><td>{{ entry.version }}</td><td>{{ entry.vulnerability }}</td></tr>
             {% endfor %}
             </table>
             </body></html>"""
