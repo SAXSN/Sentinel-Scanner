@@ -16,21 +16,26 @@ def scan(targets, report_type):
     report_generator = ReportGenerator()
 
     # Start scanning asynchronously
+    async def perform_scan():
+        return await scanner.scan_hosts(hosts)
+
     loop = asyncio.get_event_loop()
-    scan_results = loop.run_until_complete(scanner.scan_hosts(hosts))
+    scan_results = loop.run_until_complete(perform_scan())
     
     # Prepare the data for reporting
     data = []
     for host in scan_results:
         for service in host['services']:
-            vulnerability = vulnerability_scanner.check_cve(service['version'])
+            vulnerability = vulnerability_scanner.check_cve(service['version'])  # Check for vulnerabilities
             data.append({
-                'host': host['ip'],
+                'host': host['host'],  # Updated to match `SentinelScanner` output
                 'port': service['port'],
+                'protocol': service['protocol'],
                 'service': service['service'],
                 'version': service['version'],
                 'vulnerability': vulnerability
             })
+
     # Generate the report based on the selected report type
     if report_type == 'json':
         report_generator.generate_json(data)
