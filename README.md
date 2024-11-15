@@ -1,3 +1,4 @@
+![Sentinel Scanner Logo](assets/logo.png)
 # Sentinel Scanner
 
 **Sentinel Scanner** is an open-source vulnerability scanner that scans specified hosts for open ports, services, and known vulnerabilities. This tool aims to be more advanced than a simple network scanner, providing both vulnerability insights and customizable report generation.
