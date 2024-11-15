@@ -25,6 +25,6 @@ jobs:
 
       - name: Run vulnerability scan
         run: |
-          python vulnerability.py
+          python sentinel_scanner/vulnerability.py
         env:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
