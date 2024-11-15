@@ -33,8 +33,10 @@ class SentinelScanner:
                         'version': host_info[proto][port].get('version', 'Unknown')
                     }
                     services.append(service_data)
-            }
 
+            # Return host details and associated services
+            return {'host': host, 'services': services}
+        
         except Exception as e:
             print(f"Error scanning {host}: {e}")
             return None
@@ -49,3 +51,13 @@ class SentinelScanner:
 
         # Filter out None results and return only successful scans
         return [result for result in results if result is not None]
+
+# Example usage
+async def main():
+    scanner = SentinelScanner()
+    hosts = ["192.168.126.132"]  # Replace with your target IP(s)
+    results = await scanner.scan_hosts(hosts)
+    print(results)
+
+if __name__ == "__main__":
+    asyncio.run(main())
