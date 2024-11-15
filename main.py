@@ -3,16 +3,23 @@ import asyncio
 from sentinel_scanner.scanner import SentinelScanner
 from sentinel_scanner.vulnerability import VulnerabilityScanner
 from sentinel_scanner.reporting import ReportGenerator
+import os
 
 @click.command()
 @click.option('--targets', prompt='Target Hosts (comma separated)', help='Comma separated list of hosts to scan.')
 @click.option('--report_type', default='html', type=click.Choice(['json', 'csv', 'html']), help='Report format.')
 def scan(targets, report_type):
+    # Get the API key from environment variables
+    api_key = os.getenv('NVD_API_KEY')
+    if not api_key:
+        print("Error: NVD API Key not found. Ensure it's set as an environment variable.")
+        return
+    
     hosts = targets.split(',')
     
     # Initialize Scanner, Vulnerability Checker, and Report Generator
     scanner = SentinelScanner()
-    vulnerability_scanner = VulnerabilityScanner()
+    vulnerability_scanner = VulnerabilityScanner(api_key=api_key)  # Pass API key to the VulnerabilityScanner
     report_generator = ReportGenerator()
 
     # Start scanning asynchronously
@@ -26,7 +33,8 @@ def scan(targets, report_type):
     data = []
     for host in scan_results:
         for service in host['services']:
-            vulnerability = vulnerability_scanner.check_cve(service['version'])  # Check for vulnerabilities
+            # Check for vulnerabilities using the service version
+            vulnerability = vulnerability_scanner.check_cve(service['service'], service['version'])
             data.append({
                 'host': host['host'],  # Updated to match `SentinelScanner` output
                 'port': service['port'],
