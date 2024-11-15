@@ -33,12 +33,6 @@ class SentinelScanner:
                         'version': host_info[proto][port].get('version', 'Unknown')
                     }
                     services.append(service_data)
-
-            print(f"Services for host {host}: {services}")
-            return {
-                'host': host,
-                'ip': host_info.get('addresses', {}).get('ipv4', 'Unknown'),
-                'services': services
             }
 
         except Exception as e:
