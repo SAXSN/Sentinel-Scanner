@@ -29,6 +29,7 @@ jobs:
     - name: Run the scanner
       env:
         NVD_API_KEY: ${{ secrets.NVD_API_KEY }}  # Passing the secret as an environment variable
+        TARGETS: '192.168.126.132,192.168.126.133'  # Provide the target hosts as an environment variable
       run: |
         python sentinel_scanner/vulnerability.py
         python main.py
