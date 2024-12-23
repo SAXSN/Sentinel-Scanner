@@ -23,7 +23,7 @@
 
 1. **Clone the Repository**:
     ```bash
-    git clone https://github.com/yourusername/sentinel-scanner.git
+    git clone https://github.com/SAXSN/Sentinel-Scanner.git
     cd sentinel-scanner
     ```
 
